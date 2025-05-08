@@ -1,77 +1,80 @@
-# Advanced ETL using Azure + Databricks + Pyspark
-
-## Introduction
-This project aims to perform data transformation using Databricks `Pyspark` and `SparkSQL`. The data was mounted from an `Azure Data Lake Storage Gen2` and transformed within Databricks. The transformed data was then loaded back to the Datalake. This notebooks were then combined using `Azure Data Fractory`
+Advanced ETL with Azure, Databricks, and PySpark
+Introduction
+This project showcases the use of Databricks and PySpark to perform scalable data transformation tasks within an Azure cloud ecosystem. Data is mounted from Azure Data Lake Storage Gen2 (ADLS Gen2), transformed using Databricks (via PySpark and SparkSQL), and written back to the data lake. The process is automated and orchestrated using Azure Data Factory, forming a robust, production-ready ETL pipeline. 
 #### Data Flow project overview
 ![Data_Factory_overview](https://user-images.githubusercontent.com/45521680/215343684-0259be55-e9d3-4e19-8f09-f5de9f1fd20e.png)
 #### Lakehouse project overview
 ![Data_Lakehouse](https://user-images.githubusercontent.com/45521680/215344008-2da6da03-76bd-420b-9bb4-8a8dced25bb5.png)
 
-## Tools & Libraries
-* Databricks Pyspark
-* Python
-* SparkSQL
-* Azure Data Lake Storage Gen2
-* Azure Storage Account
-* Azure resource group
-* Azure Key Vault
-* Azure Data Factory
-* PowerBI
-* Azure Storage Explorer
 
-## Steps
-1. Mount the data from the Azure Data Lake Storage Gen2 to Databricks.
-2. Use Pyspark within Databricks to perform data transformations using `DELTA TABLES`.
-3. Load the transformed data back to the Azure Data Lake Storage Gen2.
+Tools & Technologies
+Databricks (PySpark, SparkSQL)
 
-## Data
-The data can be found in the data folder. There is either the `raw` data or the `raw_incremental_load` data. 
-This is basically the same data, but the in `raw_incremental_load` the data is ordered in a way to mimic data, which would normally generated over time and hence use incremental load. 
+Azure Data Lake Storage Gen2
 
-## Prerequisites
-* An active Azure subscription with access to Azure Data Lake Storage Gen2
-* Databricks account set up
-* Python
-* Pyspark
-* SQL
-* Azure Storage Explorer installed
+Azure Key Vault
 
-## Conclusion
-This project demonstrates how to perform data transformation using Databricks Pyspark and Azure Data Lake Storage Gen2. This setup can be used for larger scale data processing and storage needs.
+Azure Data Factory
 
-## Mount data from ADLS Gen2 to Databricks
-- Storing data in the FileStore of Databricks, loading into Workspace notebook and perfroming data science.
-- Storing Data in Azure Blob and mounting to Databricks. This includes the following steps:
-1. Create Resource Group in Azure.
-2. Create Storage account and assign to Resouce group.
-3. App registration (create a managed itenditiy), which we will use to connect Databricks to storage account.
-3.1 Create a client secret and copy.
-4. Create Key vault (assign to same resource group)
-4.1. Add the cleint secret here.
-5. Create secret scope within Databricks.
-5.1 Use the keyvault DNS (url) and the ResourceID to allow Databricks to access the key valuts secrets within a specific scope.
-6. Use this scope to retreive secrets and connect to storage acount container, where data is stored in Azure:
+Azure Storage Explorer
 
-```
-configs = {"fs.azure.account.auth.type": "OAuth",
-       "fs.azure.account.oauth.provider.type": "org.apache.hadoop.fs.azurebfs.oauth2.ClientCredsTokenProvider",
-       "fs.azure.account.oauth2.client.id": "<appId>",
-       "fs.azure.account.oauth2.client.secret": "<clientSecret>",
-       "fs.azure.account.oauth2.client.endpoint": "https://login.microsoftonline.com/<tenant>/oauth2/token",
-       "fs.azure.createRemoteFileSystemDuringInitialization": "true"}
-```
+Azure Resource Group & Storage Account
 
-7. Finally we can mount the data:
+Python
+
+Power BI (for visualization)
+
+Project Workflow
+Environment Setup
+
+Create an Azure Resource Group and Storage Account.
+
+Register an application for secure access (App Registration).
+
+Generate and store secrets in Azure Key Vault.
+
+Create a secret scope in Databricks to retrieve credentials securely.
+
+Mounting Data to Databricks
+
+Use the OAuth 2.0 configuration to securely mount data from ADLS Gen2.
+
+Example mount configuration using dbutils.fs.mount():
 ```
 dbutils.fs.mount(
-source = "abfss://<container-name>@<storage-account-name>.dfs.core.windows.net/folder1",
-mount_point = "/mnt/flightdata",
-extra_configs = configs)
+    source = "abfss://<container>@<storage-account>.dfs.core.windows.net/<path>",
+    mount_point = "/mnt/flightdata",
+    extra_configs = configs
+)
+
 ```
-8. Now we can load the data from the MountPoint into a Dataframe and perform actions.
+Data Transformation
+
+Load data into a PySpark DataFrame.
+
+Perform transformations using PySpark and SparkSQL.
+
+Implement Delta Tables for ACID-compliant operations and efficient updates.
+
+Handle both full and incremental loads (e.g., raw_incremental_load folder mimics real-time streaming data).
+
+Loading Data Back to ADLS
+
+Write transformed datasets back to Azure Data Lake Storage Gen2 for downstream consumption.
+
+Orchestration with Azure Data Factory
+
+Combine and schedule Databricks notebooks into a cohesive pipeline using Azure Data Factory.
+
+Data Sources
+Raw Data: Used for full-load transformations.
+
+Incremental Load Data: Structured to simulate streaming or periodically updated data.
+
+Conclusion
+This project demonstrates an end-to-end ETL pipeline leveraging Azure cloud services and Databricks. The architecture supports both batch and incremental data processing, making it suitable for enterprise-scale data engineering tasks. The integration with Delta Lake ensures data reliability and performance, while Azure Data Factory provides orchestration at scale.
 
 
-## How to mount data from Azure Data Lake Storage Gen2 to Databricks.  
 
 ### Used Azure Services
 <img width="739" alt="Screenshot 2023-01-29 at 11 14 32" src="https://user-images.githubusercontent.com/45521680/215344570-bf7415cb-0940-4848-a983-9d12bd687d00.png">
